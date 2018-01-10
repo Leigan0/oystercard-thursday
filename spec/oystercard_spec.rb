@@ -30,6 +30,7 @@ describe Oystercard do
       fail_message = "cannot top-up, #{oystercard.balance + 100} is greater than limit of #{Oystercard::MAXIMUM_BALANCE}"
       expect { oystercard.top_up 100 }.to raise_error fail_message
     end
+
   end
 
   describe '#touch_in' do
@@ -50,6 +51,14 @@ describe Oystercard do
         expect{ oystercard.touch_in(entry_station) }.to raise_error 'Not enough money on your card'
       end
     end
+    context 'incomplete journey' do
+      it 'completes journey if card already touched in' do
+          oystercard.top_up(2)
+          oystercard.touch_in(entry_station)
+          oystercard.touch_in(entry_station)
+          expect(oystercard.history.count).to eq 1
+      end
+    end
   end
 
   describe '#touch_out' do
@@ -63,7 +72,7 @@ describe Oystercard do
       oystercard.touch_out(exit_station)
     end
 
-    it 'deducts the fare from my balance' do
+    it 'deducts the returned fare from my balance' do
       expect { oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by -1
     end
 
