@@ -67,9 +67,13 @@ describe Oystercard do
       expect { oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by -1
     end
 
-    # it 'stores the journey when touching out' do
-    #   oystercard.touch_out(exit_station)
-    #   expect(oystercard.history).to include(origin: entry_station, destination: exit_station)
-    # end
+    it 'stores the journey when touching out' do
+      oystercard.touch_out(exit_station)
+      expect(oystercard.history).to include (journey)
+    end
+    it 'sets current_journey to nil' do
+      oystercard.touch_out(exit_station)
+      expect(oystercard).not_to be_in_journey
+    end
   end
 end
