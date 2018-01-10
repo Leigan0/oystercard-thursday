@@ -35,6 +35,7 @@ describe Oystercard do
   describe '#touch_in' do
     it 'touches in successfully' do
       oystercard.top_up(2)
+      expect(journey_class).to receive(:new)
       oystercard.touch_in(entry_station)
     end
 
@@ -49,7 +50,6 @@ describe Oystercard do
     before(:each) do
       oystercard.top_up(2)
       oystercard.touch_in(entry_station)
-      # allow(journey_class).to receive(:new)
     end
 
     # it 'touches out successfully' do

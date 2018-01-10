@@ -18,4 +18,4 @@ class Journey
   def destination(exit_station)
     @exit_station = exit_station
   end
-end
+end 
