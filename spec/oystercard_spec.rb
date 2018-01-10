@@ -1,7 +1,7 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:journey) {double :journey, origin: entry_station, destination: exit_station }
+  let(:journey) {double :journey, origin: entry_station, destination: exit_station, fare: 1 }
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
   let(:journey_class) { double :journey_class, new: journey}
@@ -74,6 +74,10 @@ describe Oystercard do
     it 'sets current_journey to nil' do
       oystercard.touch_out(exit_station)
       expect(oystercard).not_to be_in_journey
+    end
+    it 'receives fare method from journey' do
+      expect(journey).to receive(:fare)
+      oystercard.touch_out(exit_station)
     end
   end
 end
