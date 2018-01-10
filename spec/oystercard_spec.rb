@@ -1,11 +1,11 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:journey) {double :journey}
-  let(:journey_class) { double :journey_class, new: journey}
-  subject(:oystercard) { described_class.new(journey_class) }
+  let(:journey) {double :journey, origin: entry_station, destination: exit_station }
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
+  let(:journey_class) { double :journey_class, new: journey}
+  subject(:oystercard) { described_class.new(journey_class) }
 
   describe 'initially' do
     it 'has a initial balance of 0' do
@@ -39,6 +39,12 @@ describe Oystercard do
       oystercard.touch_in(entry_station)
     end
 
+    it 'passes entry station to journey' do
+      oystercard.top_up(2)
+      expect(journey).to receive(:origin)
+      oystercard.touch_in(entry_station)
+    end
+
     context 'when balance is below £1' do
       it 'refuses to touch in' do
         expect{ oystercard.touch_in(entry_station) }.to raise_error 'Not enough money on your card'
@@ -52,10 +58,10 @@ describe Oystercard do
       oystercard.touch_in(entry_station)
     end
 
-    # it 'touches out successfully' do
-    #   oystercard.touch_out(exit_station)
-    #   expect(oystercard).not_to be_in_journey
-    # end
+    it 'passes exit station to journey' do
+      expect(journey).to receive(:destination)
+      oystercard.touch_out(exit_station)
+    end
 
     it 'deducts the fare from my balance' do
       expect { oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by -1

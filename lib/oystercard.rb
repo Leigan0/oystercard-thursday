@@ -23,10 +23,12 @@ class Oystercard
   def touch_in(entry_station)
     raise 'Not enough money on your card' if insufficient_funds?
     @current_journey = @journey_class.new
+    @current_journey.origin(entry_station)
   end
 
   def touch_out(exit_station)
     deduct(MINIMUM_FARE)
+    @current_journey.destination(exit_station)
   end
 
   def in_journey?
