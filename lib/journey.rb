@@ -18,15 +18,4 @@ class Journey
   def destination(exit_station)
     @exit_station = exit_station
   end
-  # 
-  # def store_journey(entry_station)
-  #   @journey = {origin: entry_station}
-  # end
-  #
-  # def store_exit_station(exit_station)
-  #   @journey[:destination] = exit_station
-  #   @history << @current_journey
-  #   @current_journey = nil
-  # end
-
 end
