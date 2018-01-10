@@ -1,21 +1,22 @@
 class Journey
   attr_reader :entry_station, :exit_station
-
-  def initialize
-    @complete = false
-  end
+  MINIMUM_FARE = 1
+  PENALTY_FARE = 6
 
   def complete?
-    @complete
+    @entry_station && @exit_station
   end
 
-  def start(entry_station)
+  def fare
+    complete? ? MINIMUM_FARE : PENALTY_FARE
+  end
+
+  def origin(entry_station)
     @entry_station = entry_station
   end
 
-  def complete(exit_station)
+  def destination(exit_station)
     @exit_station = exit_station
-    @complete = true if @entry_station
   end
 
 end
