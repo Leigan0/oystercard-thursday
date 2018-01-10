@@ -5,11 +5,13 @@ describe Journey do
   let (:entry_station) { double :entry_station }
   let (:exit_station) { double :exit_station }
 
+describe '#origin' do
   it 'stores the entry station' do
     journey.origin(entry_station)
     expect(journey.entry_station).to eq entry_station
   end
-  describe '#complete' do
+end
+  describe '#destination' do
     it 'stores the exit station' do
       journey.destination(exit_station)
       expect(journey.exit_station).to eq exit_station
