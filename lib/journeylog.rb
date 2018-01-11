@@ -1,20 +1,25 @@
+
 class Journeylog
-  attr_reader :journey, :history
-require_relative 'journey'
+  attr_reader :journey
+  require_relative 'journey'
   def initialize(journey_class = Journey)
     @journey_class = journey_class
-    @history = []
+    @log = []
   end
 
   def start(entry_station)
-    @history << current_journey
     current_journey.origin(entry_station)
+    update_log
   end
 
   def finish(exit_station)
-    current_journey
     current_journey.destination(exit_station)
+    update_log
     @journey = nil
+  end
+
+  def journeys
+    @log.dup
   end
 
   private
@@ -23,4 +28,7 @@ require_relative 'journey'
     @journey ||= @journey_class.new
   end
 
+  def update_log
+    unless @log.include?(current_journey) then @log << current_journey end
+  end
 end
