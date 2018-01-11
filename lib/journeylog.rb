@@ -31,4 +31,5 @@ class Journeylog
   def update_log
     unless @log.include?(current_journey) then @log << current_journey end
   end
+
 end

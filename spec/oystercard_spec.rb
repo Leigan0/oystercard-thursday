@@ -1,107 +1,81 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:journey) {double :journey, origin: entry_station, destination: exit_station, fare: 1 }
   let(:entry_station) { double :entry_station }
   let(:exit_station) { double :exit_station }
-  let(:journey_class) { double :journey_class, new: journey}
+  let(:journey) {double :journey, origin: entry_station, destination: exit_station, fare: 1, complete?: true }
+  let(:journeylog) { double :journeylog, journeys:[journey], start: true, finish: nil}
+  let(:journey_class) { double :journey_class, new: journeylog}
   subject(:oystercard) { described_class.new(journey_class) }
 
-  describe 'initially' do
+  describe 'initialize' do
     it 'has a initial balance of 0' do
       expect(oystercard.balance).to eq 0
     end
-
     it 'is not in a journey' do
-      expect(oystercard.current_journey).to be_falsey
-    end
-
-    it 'has no history' do
-      expect(oystercard.history).to be_empty
+      expect(oystercard).not_to be_in_journey
     end
   end
 
   describe '#top_up' do
     it 'checks if the card has been topped-up' do
-      expect { oystercard.top_up 1 }.to change { oystercard.balance }.by 1
+      expect { oystercard.top_up Oystercard::MINIMUM_FARE }.to change { oystercard.balance }.by Oystercard::MINIMUM_FARE
     end
 
-    it 'fails to top up beyond £90' do
-      fail_message = "cannot top-up, #{oystercard.balance + 100} is greater than limit of #{Oystercard::MAXIMUM_BALANCE}"
-      expect { oystercard.top_up 100 }.to raise_error fail_message
+    it 'fails to top up beyond MAXIMUM_BALANCE' do
+      top_up_amount = Oystercard::MAXIMUM_BALANCE+1
+      fail_message = "cannot top-up, #{oystercard.balance + top_up_amount } is greater than limit of #{Oystercard::MAXIMUM_BALANCE}"
+      expect { oystercard.top_up top_up_amount }.to raise_error fail_message
     end
 
   end
 
   describe '#touch_in' do
-    it 'touches in successfully' do
-      oystercard.top_up(2)
-      expect(journey_class).to receive(:new)
-      oystercard.touch_in(entry_station)
-    end
-
-    it 'passes entry station to journey' do
-      oystercard.top_up(2)
-      expect(journey).to receive(:origin)
-      oystercard.touch_in(entry_station)
-    end
-
-    context 'when balance is below £1' do
+    context 'when balance is below MINIMUM_FARE' do
       it 'refuses to touch in' do
         expect{ oystercard.touch_in(entry_station) }.to raise_error 'Not enough money on your card'
       end
     end
-    context 'incomplete journey' do
-      it 'stores current journey to history' do
-          oystercard.top_up(2)
-          oystercard.touch_in(entry_station)
-          oystercard.touch_in(entry_station)
-          expect(oystercard.history).to eq [journey]
-      end
-      it 'starts a new journey' do
+    context 'card topped up' do
+      before(:each) do
         oystercard.top_up(10)
         oystercard.touch_in(entry_station)
-        expect(journey_class).to receive(:new)
+      end
+      it 'passes journey entry station to journeylog ' do
+        expect(journeylog).to receive(:start).with(entry_station)
         oystercard.touch_in(entry_station)
+      end
+      it 'confirms card in_journey' do
+        expect(oystercard).to be_in_journey
+      end
+      context 'when previous journey was not complete' do
+        it 'confirms if previous journey within journey log complete' do
+          expect(journey).to receive(:complete?)
+          oystercard.touch_in(entry_station)
+        end
+        it 'confirms confirms fare of previous journey to deduct if not complete' do
+          allow(journey).to receive(:complete?).and_return(false)
+          expect(journey).to receive(:fare)
+          oystercard.touch_in(entry_station)
+        end
       end
     end
   end
 
   describe '#touch_out' do
-    before(:each) do
-      oystercard.top_up(2)
-      oystercard.touch_in(entry_station)
-    end
-
     it 'passes exit station to journey' do
-      expect(journey).to receive(:destination)
+      expect(journeylog).to receive(:finish).with(exit_station)
       oystercard.touch_out(exit_station)
     end
-
     it 'deducts the returned fare from my balance' do
       expect { oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by -1
     end
-
-    it 'stores the journey when touching out' do
+    it 'sets in_journey to false' do
       oystercard.touch_out(exit_station)
-      expect(oystercard.history).to include (journey)
-    end
-    it 'sets current_journey to nil' do
-      oystercard.touch_out(exit_station)
-      expect(oystercard.current_journey).to be_falsey
+      expect(oystercard).not_to be_in_journey
     end
     it 'receives fare method from journey' do
       expect(journey).to receive(:fare)
-      oystercard.touch_out(exit_station)
-    end
-  end
-
-  context 'incomplete journey' do
-    before(:each) do
-      oystercard.top_up(2)
-    end
-    it 'starts a new journey on touch out if journey doesnt exist' do
-      expect(journey_class).to receive(:new)
       oystercard.touch_out(exit_station)
     end
   end
