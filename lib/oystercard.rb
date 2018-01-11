@@ -22,19 +22,17 @@ class Oystercard
 
   def touch_in(entry_station)
     raise 'Not enough money on your card' if insufficient_funds?
-    if current_journey then complete_journey end
-    @current_journey = @journey_class.new
+    complete_journey if current_journey
+    start_journey
     current_journey.origin(entry_station)
   end
 
   def touch_out(exit_station)
+    start_journey
     current_journey.destination(exit_station)
     complete_journey
   end
 
-  # def in_journey?
-  #   !current_journey.nil?
-  # end
 
   private
 
@@ -50,12 +48,21 @@ class Oystercard
     balance < MINIMUM_FARE
   end
 
+
+  def in_journey?
+    !current_journey.nil?
+  end
+
   private
 
+  def start_journey
+    @current_journey = @journey_class.new unless current_journey
+  end
+
   def complete_journey
-      deduct(current_journey.fare)
-      @history << @current_journey
-      @current_journey = nil
+    deduct(current_journey.fare)
+    @history << @current_journey
+    @current_journey = nil
   end
 
 end

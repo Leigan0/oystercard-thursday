@@ -95,4 +95,14 @@ describe Oystercard do
       oystercard.touch_out(exit_station)
     end
   end
+
+  context 'incomplete journey' do
+    before(:each) do
+      oystercard.top_up(2)
+    end
+    it 'starts a new journey on touch out if journey doesnt exist' do
+      expect(journey_class).to receive(:new)
+      oystercard.touch_out(exit_station)
+    end
+  end
 end
