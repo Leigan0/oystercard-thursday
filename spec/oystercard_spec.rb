@@ -52,11 +52,17 @@ describe Oystercard do
       end
     end
     context 'incomplete journey' do
-      it 'completes journey if card already touched in' do
+      it 'stores current journey to history' do
           oystercard.top_up(2)
           oystercard.touch_in(entry_station)
           oystercard.touch_in(entry_station)
-          expect(oystercard.history.count).to eq 1
+          expect(oystercard.history).to eq [journey]
+      end
+      it 'starts a new journey' do
+        oystercard.top_up(10)
+        oystercard.touch_in(entry_station)
+        expect(journey_class).to receive(:new)
+        oystercard.touch_in(entry_station)
       end
     end
   end
