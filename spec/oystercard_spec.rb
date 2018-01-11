@@ -13,7 +13,7 @@ describe Oystercard do
     end
 
     it 'is not in a journey' do
-      expect(oystercard.in_journey?).to be false
+      expect(oystercard.current_journey).to be_falsey
     end
 
     it 'has no history' do
@@ -88,7 +88,7 @@ describe Oystercard do
     end
     it 'sets current_journey to nil' do
       oystercard.touch_out(exit_station)
-      expect(oystercard).not_to be_in_journey
+      expect(oystercard.current_journey).to be_falsey
     end
     it 'receives fare method from journey' do
       expect(journey).to receive(:fare)

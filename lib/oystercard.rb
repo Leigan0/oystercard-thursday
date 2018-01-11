@@ -32,9 +32,9 @@ class Oystercard
     complete_journey
   end
 
-  def in_journey?
-    !current_journey.nil?
-  end
+  # def in_journey?
+  #   !current_journey.nil?
+  # end
 
   private
 
