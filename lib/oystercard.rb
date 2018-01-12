@@ -19,7 +19,7 @@ class Oystercard
 
   def touch_in(entry_station)
     raise 'Not enough money on your card' if insufficient_funds?
-    outstanding_penalty_charges if in_journey?
+    outstanding_penalty_charges
     journeylog.start(entry_station)
     @in_journey = true
   end
@@ -49,6 +49,6 @@ class Oystercard
   end
 
   def outstanding_penalty_charges
-    journeylog.journeys.last.complete? ? deduct(0) : deduct(journeylog.journeys[-1].fare)
+    deduct(journeylog.journeys.last.fare) if in_journey?
   end
 end
