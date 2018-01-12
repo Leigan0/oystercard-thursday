@@ -26,7 +26,7 @@ class Oystercard
 
   def touch_out(exit_station)
     journeylog.finish(exit_station)
-    deduct(journeylog.journeys[-1].fare)
+    deduct(journeylog.journeys.last.fare)
     @in_journey = false
   end
 
@@ -49,6 +49,6 @@ class Oystercard
   end
 
   def outstanding_penalty_charges
-    journeylog.journeys[-1].complete? ? deduct(0) : deduct(journeylog.journeys[-1].fare)
+    journeylog.journeys.last.complete? ? deduct(0) : deduct(journeylog.journeys[-1].fare)
   end
 end

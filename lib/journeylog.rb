@@ -1,7 +1,6 @@
-
+require_relative 'journey'
 class Journeylog
   attr_reader :journey
-  require_relative 'journey'
   def initialize(journey_class = Journey)
     @journey_class = journey_class
     @log = []
